@@ -1,4 +1,4 @@
-### Rate Limiting - using SpringBoot Bucket4j
+### Rate Limiting
 
 ###### Did Rate Limiting on APIs
 ```
