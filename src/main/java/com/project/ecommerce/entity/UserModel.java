@@ -7,7 +7,12 @@ import lombok.*;
 @Setter
 @Getter
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email")
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +21,7 @@ public class UserModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String password;
