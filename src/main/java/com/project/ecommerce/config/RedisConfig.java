@@ -1,28 +1,39 @@
 package com.project.ecommerce.config;
 
+import com.project.ecommerce.dto.UserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.*;
 
 import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
-    @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory factory){
-        // Redis stores JSON
-        RedisSerializer<Object> serializer = new GenericJackson2JsonRedisSerializer(new ObjectMapper());
 
-        // serialized data stored in Redis with TTL = 10 minutes (Time To Live)
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))
-                .entryTtl(Duration.ofMinutes(10));
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
+
+        // 1. Store JSON in Redis
+        // 2. Serialization + Deserialization
+        // 3. TTL (Time To Live) -> Data Expiry Time
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        Jackson2JsonRedisSerializer<UserDTO> serializer =
+                new Jackson2JsonRedisSerializer<>(UserDTO.class);
+
+        serializer.setObjectMapper(mapper);
+
+        RedisCacheConfiguration config =
+                RedisCacheConfiguration.defaultCacheConfig()
+                        .serializeValuesWith(
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(serializer))
+                        .entryTtl(Duration.ofMinutes(10));
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)

@@ -8,6 +8,7 @@ import com.project.ecommerce.repository.UserRepository;
 import com.project.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
+    @CacheEvict(value = "users", key = "#req.email")
     public UserDTO register(RegisterRequest req) {
 
         // Check if Email already exists
@@ -72,9 +74,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value="users", key="#email")
+    @Cacheable(value="users", key="#email") // Cacheable Annotation
     public UserDTO getUserByEmail(String email) {
 
+        System.out.println("Fetch Data from Database");
 
         UserModel user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
